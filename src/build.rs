@@ -9,6 +9,7 @@ use std::process::{Child, ChildStdout, Command, Stdio};
 struct CargoArgs {
     filtered: Vec<String>,
     contains_target: bool,
+    contains_profile: bool,
 }
 
 enum ReleaseMode {
@@ -84,7 +85,9 @@ fn cargo_command(
 
     match release_mode {
         ReleaseMode::AddRelease => {
-            command.arg("--release");
+            if !parsed_args.contains_profile {
+                command.arg("--release");
+            }
         }
         ReleaseMode::NoRelease => {}
     }
@@ -128,6 +131,10 @@ fn parse_cargo_args(cargo_args: Vec<String>) -> CargoArgs {
             }
             "--target" => {
                 args.contains_target = true;
+                args.filtered.push(arg);
+            }
+            "--profile" => {
+                args.contains_profile = true;
                 args.filtered.push(arg);
             }
             _ => args.filtered.push(arg),
